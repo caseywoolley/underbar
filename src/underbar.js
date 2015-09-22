@@ -171,12 +171,9 @@
   _.contains = function(collection, target) {
     // TIP: Many iteration problems can be most easily expressed in
     // terms of reduce(). Here's a freebie to demonstrate!
-    return _.reduce(collection, function(wasFound, item) {
-      if (wasFound) {
-        return true;
-      }
-      return item === target;
-    }, false);
+    return !_.reduce(collection, function(notFound, item) {
+      return notFound && (item !== target);
+    }, true);
   };
 
 
@@ -185,15 +182,7 @@
     // TIP: Try re-using reduce() here.
     if (!iterator){ iterator = function(item){ return item === true }; }
     return _.reduce(collection, function(allTrue, item){
-      if (!allTrue){
-        return false;
-      }
-      if (iterator(item)) {
-        return true;
-      } else {
-        allTrue = false;
-        return false;
-      }
+      return (allTrue && !!iterator(item));
     }, true);
   };
 
@@ -201,13 +190,8 @@
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
-    //return _.every(collection, function(){ iterator }); // TODO: figure out every() method
     if (!iterator){ iterator = function(item){ return item === true }; }
-    var some = false;
-    _.each(collection, function(item){
-      if (iterator(item)) { some = true; };
-    })
-    return some;
+    return !(_.every(collection, function(item){ return !!iterator(item) === false }));
   };
 
 
@@ -331,12 +315,19 @@
   _.shuffle = function(array) {
     var copy = Array.prototype.slice.call(array);
     var shuffle = [];
-    var rand;
-    _.each(array, function(n){
+    var rand, rotate;
+    var match = true;
+    _.each(array, function(num, i){
       rand = Math.floor( Math.random() * copy.length );
       shuffle.push(copy[rand])
       copy.splice(rand, 1);
+      match = match && (array[i] === shuffle[i]);
     });
+
+    if ( match ) {
+      rotate = shuffle.pop();
+      shuffle.unshift(rotate);
+    } 
     return shuffle;
   };
 
