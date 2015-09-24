@@ -298,7 +298,7 @@
     var delayed = function() {
       return func.apply(this, args);
     }
-    return setInterval(delayed, wait);
+    return setTimeout(delayed, wait);
   };
 
 
@@ -455,5 +455,17 @@
   //
   // Note: This is difficult! It may take a while to implement.
   _.throttle = function(func, wait) {
+    var ready = true;
+    
+    return function(){
+      if (ready){
+        setTimeout(function(){
+          ready = true;
+        }, wait);
+        ready = false;
+        return setTimeout(func, wait);
+      }
+    }
   };
+ 
 }());
